@@ -1,0 +1,3 @@
+Exported data can be found in files:
+C:\Werk\py\datapreparation\testdata\GL75-050_LoggedBB.txt
+C:\Werk\py\datapreparation\testdata\GL75-050_LoggedSpectra.txt
