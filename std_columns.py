@@ -31,7 +31,7 @@ def standardize(df, str_c_soundpath, str_c_exclude, str_c_time,str_c_laeq1s):
     for c in df.columns.tolist():
         if c in lstlaeqspellings():
             df.rename(columns={c:str_c_laeq1s}, inplace=True)
-        if c in ['Start Time', 'starttime', 'Start time', 'start Time']:
+        if c in ['Start Time', 'starttime', 'Start time', 'start Time', "Time"]:
             df.rename(columns={c:str_c_time}, inplace=True)
         if c in ['Sound Path', 'sound Path', 'soundpath', 'SoundPath', 'sound path']:
             df.rename(columns={c:str_c_soundpath}, inplace=True)
@@ -81,7 +81,7 @@ def lst_minmax_spellings():
     """Even when the same brand of sound level meter is used, the column-names for min max
             that it spits out can differ.
             Here is a list of all the spellings that i found"""
-    lst = (['LAFmin', 'LAFmax'], ['LAFMIN','LAFMAX'], ['lafmin','lafmax'])
+    lst = (['LAFmin', 'LAFmax'], ['LAFMIN','LAFMAX'], ['lafmin','lafmax'],['LAFMax','LAFMin'])
     return lst
 def lst_stats_spellings():
     """Even when the same brand of sound level meter is used, the column-names for statistiscs

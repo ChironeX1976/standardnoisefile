@@ -7,8 +7,7 @@ import base64
 import mimetypes
 import os
 
-from pandas.core.methods.selectn import SelectNSeries
-
+from slm_01db import zero1db_dataprep
 
 def simulate_dash_upload(file_path):
     # Read the file in binary mode
@@ -67,17 +66,17 @@ def evaluate_first_line(sample_text):
     else:
         return 0,'unknown source'
 
-f1 = 'testdata/GL75-050_LoggedSpectra.txt'
-f2 = 'testdata/GL75-050_LoggedBB.txt'
+# f1 = 'testdata/GL75-050_LoggedSpectra.txt'
+# f2 = 'testdata/GL75-050_LoggedBB.txt'
 f3 = 'testdata/01.csv'
-f4 = 'testdata/dummy_file_nodata.txt'
-contents, filename  = simulate_dash_upload(f4)
+# f4 = 'testdata/dummy_file_nodata.txt'
+contents, filename  = simulate_dash_upload(f3)
 content_type, content_string = contents.split(',')
-
 # main logic
 decoded = base64.b64decode(content_string)
+
 # first read the encoding
-enc = read_encoding(decoded[:2048])
+enc = read_encoding(decoded[:1024])
 
 # try to make a sample string
 try:
@@ -87,43 +86,19 @@ except UnicodeDecodeError:
     sample = decoded.decode('utf-8', errors='ignore')
 
 
-# Evaluate only the first line to decide skiprows
+# Evaluate only the first line
 skiprows, source = evaluate_first_line(sample)
 print("Skiprows based on first line:", skiprows, "sourcefile:",source)
 #
 delim, msg = detect_delimiter(sample)
-print('deli:', delim, msg)
+print('delim:', delim, msg)
+
+zero1db_dataprep(decoded, enc, delim,skiprows)
 #
-try:
-     df = pd.read_csv(io.StringIO(sample), delimiter=delim, skiprows=skiprows)
-     print(df.head())
-except Exception as e:
-     print("[FOUT bij pandas.read_csv]:", e)
+# try:
+#      df = pd.read_csv(io.StringIO(sample), delimiter=delim, skiprows=skiprows)
+#      print(df.head())
+# except Exception as e:
+#      print("[FOUT bij pandas.read_csv]:", e)
 
 
-
-
-# # zo komt de file binnen in dash, als een STRING c is dus een string
-# c, f = simulate_dash_upload(f1)
-# # print ('string', c)
-# # c string wordt omgezet naar bytes c_b
-#
-# c_b = base64.b64decode(c)
-#
-# # print ('string wordt bytes', c_b)
-# #sample
-# s_c_b = c_b[0:2000]
-# print ('sample in bytes', s_c_b)
-# enc = read_encoding(s_c_b)
-# # sample in bytes terug opzetten naar string
-# s_c_s = s_c_b.decode(enc)
-# delim = read_delimiter(s_c_s)
-# #klein stukje data inlezen
-# df = pd.read_csv(io.StringIO(c_b.decode(enc)), delimiter='\t', engine="python", decimal=',')
-# print (df)
-# print(check_encoding_and_delimiters(f1))
-# print (check_encoding_and_delimiters(f2))
-
-# df2= pd.read_csv('testdata/GL75-050_LoggedBB.txt', delimiter = "\t", encoding=result['encoding'])
-# #pd.read_csv('testdata/GL75-050_LoggedBB.txt', delimiter="\t", engine="python", decimal=',')
-# print(df2)
