@@ -4,9 +4,9 @@ import io
 import numpy as np
 from collections import Counter
 import os
-def b_en_k_2250dataprep_bb(decodeddata:str,f:str):
+def b_en_k_2250dataprep_bb(decodeddata:str,f:str, encodingg, delimiterr):
     # read into pandas dataframe
-    df = pd.read_csv(io.StringIO(decodeddata.decode('utf-8')), delimiter="\t", skiprows=0, engine="python", decimal=',')
+    df = pd.read_csv(io.StringIO(decodeddata.decode(encodingg)), delimiter=delimiterr, skiprows=0, engine="python", decimal=',')
     #df = pd.read_csv('C:/Werk/py/datapreparation/testdata/GL 22  007_LoggedBB.txt', delimiter="\t", skiprows=0, engine="python", decimal=',')
     # get standard columnames
     str_c_laeq1s, str_c_time,  str_c_soundpath, str_c_exclude, lst_strminmax = standard_column_names()
@@ -37,9 +37,9 @@ def b_en_k_2250dataprep_bb(decodeddata:str,f:str):
     df[str_c_soundpath] = df[str_c_soundpath].apply(lambda x: os.path.basename(x) if isinstance(x, str) else None)
 
     return df
-def b_en_k_2250dataprep_spec (decodeddata:str,f:str):
+def b_en_k_2250dataprep_spec (decodeddata:str,f:str, encodingg, delimiterr):
     # read into pandas dataframe
-    df = pd.read_csv(io.StringIO(decodeddata.decode('utf-8')), delimiter="\t", skiprows=0, engine="python", decimal=',')
+    df = pd.read_csv(io.StringIO(decodeddata.decode(encodingg)), delimiter=delimiterr, skiprows=0, engine="python", decimal=',')
     # get standard columnames
     str_c_laeq1s, str_c_time,  str_c_soundpath, str_c_exclude, lst_strminmax = standard_column_names()
     lst_stndrd_spectrcols = lst_standard_spectrumcolumn_names()  # list of the spectrum-spelling that i choose

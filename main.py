@@ -36,7 +36,12 @@ def save_output(n_clicks,dict_df,targetpath):
     Input('cl_upload01', 'contents'),
     State('cl_upload01', 'filename'), prevent_initial_call=True)
 def load_data(contents, filenames):
-    #maak altijd een lijst van de geüploade bestanden, ook als het er maar één is
+    """laad de data,
+    :param filenames and contents of the uploaded files
+    :returns
+        if input was valid or not and
+        a dictionary of the dataframe"""
+    #always make a list of geüploaded files, even if it is only one file
     if not isinstance(contents, list):
         contents = [contents]
         filenames = [filenames]

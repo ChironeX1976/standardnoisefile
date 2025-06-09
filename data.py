@@ -3,18 +3,23 @@ import pandas as pd
 import io
 import base64
 import chardet
+import csv
 from std_columns import lstlaeqspellings, check_isoneoflist_inbiglist
 def parse_contents(contents, filename):
-    """ Decodeert de inhoud en leest de data.
+    """ Decodeert de inhoud en leest de data in als string en maakt er decoded_bytes van.
     Retourneert niks als het geen textbestand is """
     content_type, content_string = contents.split(',')  # Scheid metadata en base64-encoded inhoud
-    decoded = base64.b64decode(content_string)  # Decodeer de base64-string
+    decoded_bytes = base64.b64decode(content_string)  # Decodeer de base64-string naar bytes
+    sample_decoded_bytes = decoded_bytes[:10000]
+    enc = read_encoding(sample_decoded_bytes)
+    sample_content_string = sample_decoded_bytes.decode(enc)
+    delimiterr = read_delimiter(sample_content_string)
     try:
         # Als het een tekstbestand of CSV is
         if filename.endswith('.txt') or filename.endswith('.csv'):
             #text = io.StringIO(decoded.decode('utf-8')).read()
             #print("tekstbestand gedetecteerd")
-            return decoded
+            return decoded_bytes, enc, delimiterr
         # Als het een afbeelding is
         elif filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):
             #print("foto gedetecteerd")
@@ -40,17 +45,17 @@ def data_init (contents, filenames):
     '''
     dict_df = dict()
     for c, f in zip(contents, filenames):
-        strdecoded = parse_contents(c, f)
+        strdecoded, encodingg, delimiterr = parse_contents(c, f)
         if strdecoded is None:
             geldigheid = "niet geldige file"
             return geldigheid
         else:
             # check sonometer type, based on decoded string
-            invalid, slmtype = categorize_slm_from_inputdata(strdecoded, f)
+            invalid, slmtype = categorize_slm_from_inputdata(strdecoded, f, encodingg, delimiterr)
             if invalid:
                 geldigheid = 'niet geldige file'
             else:
-                df = data_prep(slmtype, strdecoded, f)
+                df = data_prep(slmtype, strdecoded, f, encodingg, delimiterr)
                 geldigheid = 'geldige file van ' + slmtype
                 if len(dict_df) == 0: # if there is nothing in the dfdict variable, then it is the first filename
                     dict_df = df.to_dict('records')
@@ -60,7 +65,7 @@ def data_init (contents, filenames):
                     dict_df = df.to_dict('records')
     return geldigheid, dict_df
 
-def categorize_slm_from_inputdata(decoded, filename):
+def categorize_slm_from_inputdata(decoded, filename, encodingg, delimiterr):
     """Categorise type of sound level meter (slm) - dataset-types,
        by reading the filename and the first 5 lines of the raw dataset (string),
     At the moment only the data from a slm called Bruel and Kjaer-2250 is programmed
@@ -73,7 +78,7 @@ def categorize_slm_from_inputdata(decoded, filename):
      """
     lst_typeslmdataset =["Bruel and Kjaer-2250_BB", "Bruel and Kjaer-2250_Spectra", "standardized", "01dB-duo"]
     # read first 5 lines of dataset. the \t is tricky. sometimes it crashes. errorhandling should be programmed later
-    df = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter="\t", engine="python", decimal=',')
+    df = pd.read_csv(io.StringIO(decoded.decode(encodingg)), delimiter=delimiterr, engine="python", decimal=',')
     if 'loggedbb' in filename.lower():
         # categorize through some standard column-names
         if df.columns[0] == "Project Name" and check_isoneoflist_inbiglist (lstlaeqspellings(), df.columns.tolist()):     # bruel and kjaer - 2250 - broadband file
@@ -96,11 +101,11 @@ def categorize_slm_from_inputdata(decoded, filename):
             invalid = True
     return invalid, slmtype
 
-def data_prep(typeslmdataset:str, decoded:str, filename:str):
+def data_prep(typeslmdataset:str, decoded:str, filename:str, encodingg, delimiterr):
     if typeslmdataset == "Bruel and Kjaer-2250_BB":
-        df = b_en_k_2250dataprep_bb(decoded, filename)
+        df = b_en_k_2250dataprep_bb(decoded, filename, encodingg, delimiterr)
     elif typeslmdataset == "Bruel and Kjaer-2250_Spectra":
-        df = b_en_k_2250dataprep_spec(decoded, filename)
+        df = b_en_k_2250dataprep_spec(decoded, filename,encodingg, delimiterr)
 
     elif typeslmdataset == "standardized":
         print('bestaat niet')
@@ -115,3 +120,18 @@ def saveas_standard_csv_in_data_dir(dict_df, f):
     df['time'] = pd.to_datetime(df['time'])
     df.to_csv(f, sep="\t", index=False)
     return f"Bestand {f} , data saved"
+def read_encoding(bytessample):
+    result = chardet.detect(bytessample)
+    enc = result['encoding']
+    return enc
+def read_delimiter(txt):
+    sniffer = csv.Sniffer()
+#BIJ CSV BESTAND VAN FUSION KAN HIJ NIET DETECTEREN WELKE DELIMITERS ER VAN TOEPASSING ZIJN
+    print(txt)
+    try:
+        dialect = sniffer.sniff(txt)
+        delim = dialect.delimiter
+    except csv.Error:
+        delim = ","
+    print ('delimiter', delim)
+    return delim
