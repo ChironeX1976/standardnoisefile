@@ -2,7 +2,7 @@
 def standard_column_names():
     """returns standard column names"""
     str_c_laeq1s ="laeq1s" #column name with laeq1s
-    str_c_time = "time" # column name with time stamp
+    str_c_time = "isodatetime" # column name with time stamp
     str_c_soundpath = "soundpath"
     str_c_exclude = "exclude"
     lst_c_minmax = ['lafmin','lafmax']
@@ -31,7 +31,7 @@ def standardize(df, str_c_soundpath, str_c_exclude, str_c_time,str_c_laeq1s):
     for c in df.columns.tolist():
         if c in lstlaeqspellings():
             df.rename(columns={c:str_c_laeq1s}, inplace=True)
-        if c in ['Start Time', 'starttime', 'Start time', 'start Time', "Time"]:
+        if c in ['Start Time', 'starttime', 'Start time', 'start Time']:
             df.rename(columns={c:str_c_time}, inplace=True)
         if c in ['Sound Path', 'sound Path', 'soundpath', 'SoundPath', 'sound path']:
             df.rename(columns={c:str_c_soundpath}, inplace=True)
@@ -130,7 +130,10 @@ def lst_spectra_spellings():
            '12.5k','16k', '20k'], \
           [25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500,
            630, 800, 1000, 1250, 1600, 2000, 2500,3150, 4000,5000, 6300, 8000, 10000, 12500,
-           16000, 20000]
+           16000, 20000],\
+        ['25 Hz', '31.5 Hz', '40 Hz', '50 Hz', '63 Hz', '80 Hz', '100 Hz', '125 Hz', '160 Hz', '200 Hz', '250 Hz', '315 Hz',
+        '400 Hz', '500 Hz', '630 Hz', '800 Hz', '1 kHz', '1.25 kHz', '1.6 kHz', '2 kHz', '2.5 kHz', '3.15 kHz', '4 kHz',
+        '5 kHz', '6.3 kHz', '8 kHz', '10 kHz', '12.5 kHz', '16 kHz', '20 kHz', ]
     return lst
 def check_isoneoflist_inbiglist (checklist, biglist):
     "checks if one checkitem of a checkitemlist is within a biglist, and turns true or false"
@@ -139,3 +142,25 @@ def check_isoneoflist_inbiglist (checklist, biglist):
     else:
         check_isoneoflist_inbiglist = False
     return check_isoneoflist_inbiglist
+
+
+# def drop_last_non_unique_column(df):
+#     """
+#     Drops the last column with a non-unique name in the DataFrame.
+#
+#     Parameters:
+#         df (pd.DataFrame): The input DataFrame.
+#
+#     Returns:
+#         pd.DataFrame: A new DataFrame with the last non-unique column removed.
+#     """
+#     cols = df.columns
+#     non_unique_indices = [i for i, col in enumerate(cols)
+#                           if list(cols).count(col) > 1]
+#
+#     if non_unique_indices:
+#         last_non_unique_idx = max(non_unique_indices)
+#         return df.drop(df.columns[last_non_unique_idx], axis=1)
+#
+#     # Return original if no non-unique column names exist
+#     return df

@@ -14,11 +14,15 @@ def c_knoppen():
                              multiple=True,
                              className="custom-upload",
                              ),
+                  dcc.Input(
+                      id="cl_audiofolder", type="text",
+                      value=str('C:/py/standardize/testdata/audio/01db'), placeholder="c:/tmp/audio",
+                      className="custom-saveaspath"),
                   html.Div(id='cl_filestatus', children='...'),
                   html.Button(id="cl_btn_save", children="save to ... " ),
                   dcc.Input(
                       id="cl_path", type="text",
-                      value=str(get_std_save_path()), placeholder="c:/tmp/standardfile.txt", className="custom-saveaspath")
+                      value=str(get_std_save_path()), placeholder="c:/tmp/standardfile.txt", className="custom-audiopath")
                   ])
     return c
 def c_divhelpfields():
