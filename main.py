@@ -3,14 +3,6 @@ from layout import layout_dash
 from data import data_init, saveas_standard_csv_in_data_dir
 import webbrowser
 
-# # Pad naar Microsoft Edge (pas aan indien nodig)
-# edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-#
-# # Registreer Edge als browser
-# webbrowser.register('edge', None, webbrowser.BackgroundBrowser(edge_path))
-#
-# # Open met Edge
-# webbrowser.get('edge').open_new("http://127.0.0.1:8050/")
 
 # ######################################################################################
 # # #########                 BUILD DASHBOARD                                  #########

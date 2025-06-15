@@ -10,3 +10,10 @@ def get_std_save_path():
     else:
         # Op Linux/macOS wordt de map in de thuismap gezet
         return Path.home() / "tmp/standardfile.txt"
+def get_std_audio_path():
+    system = platform.system()
+    if system == "Windows":
+        return Path("C:/audio/")
+    else:
+        # Op Linux/macOS wordt de map in de thuismap gezet
+        return Path.home() / "audio/"

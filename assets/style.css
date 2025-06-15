@@ -1,19 +1,26 @@
+* {
+    font-family: 'Verdana', sans-serif;
+}
 .custom-upload {
-    width: 50%;
-    max-width: 400px;
+    width: 60%;
+    max-width: 500px;
     border: 2px solid black;
     background-color: white;
     padding: 10px;
-    text-align: center;
+    text-align: left;
 }
 .custom-saveaspath {
-    border: 2px solid white;
+    border: 2px solid black;
     background-color: white;
     text-align: left;
 }
 .custom-audiopath {
-    width:50%;
-    border: 2px solid white;
+    color: grey;
+    width: 60%;
+    max-width: 500px;
+    border: 2px solid grey;
     background-color: white;
+    padding: 10px;
     text-align: left;
 }
+.custom-audiotext{color: grey}
