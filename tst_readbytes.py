@@ -7,6 +7,7 @@ import mimetypes
 import os
 from slm_01db import zero1db_dataprep
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
+from std_columns import standard_column_names
 
 
 def simulate_dash_upload(file_path):
@@ -25,7 +26,6 @@ def simulate_dash_upload(file_path):
     # Construct the same string as dcc.Upload would provide
     contents = f"data:{mime_type};base64,{base64_content}"
     filename = os.path.basename(file_path)
-
     return contents, filename
 def get_encoding(bytessample):
     result = chardet.detect(bytessample)
@@ -34,12 +34,11 @@ def get_encoding(bytessample):
     return enc
 def get_delimiter(sample_text):
     try:
-        # sample_for_sniffer = filter_valid_lines(sample_text, skiprows)
         sniffer = csv.Sniffer()
         dialect = sniffer.sniff(sample_text)
         delim = dialect.delimiter
         msg = "TAB" if delim == '\t' else delim
-        print(msg)
+        print('delimiter:', msg)
         return delim
     except Exception as e:
         print(f"[DEBUG] Fout bij detecteren delimiter: {e}")
@@ -111,6 +110,7 @@ def data_init (contents, filenames, audiofolder):
         dict_df: a dictionary of a dataframe to store in the dash web page
     '''
     dict_df = dict()
+    str_c_laeq1s, str_c_time, str_c_soundpath, str_c_exclude, lst_c_minmax = standard_column_names()
     for c, f in zip(contents, filenames):
         strdecoded = parse_contents(c, f)
         if strdecoded is None:
@@ -128,7 +128,7 @@ def data_init (contents, filenames, audiofolder):
                     dict_df = df.to_dict('records')
                 else: # if there is already something in the dfdict variable, then we try to merge the data
                     df0 = pd.DataFrame(dict_df)
-                    df = pd.merge_ordered(df0, df, on = 'time')
+                    df = pd.merge_ordered(df0, df, on = str_c_time)
                     dict_df = df.to_dict('records')
     return geldigheid, dict_df
 def make_datasample(decoded, enc):
@@ -157,10 +157,8 @@ def get_fileproperties(decoded, filename):
 def data_prep(decoded:str, fileproperties, audiofolder):
     slmtype = fileproperties['slmtype']
     if slmtype == "benk_bb":
-        print ('benk_bb')
         df = b_en_k_2250dataprep_bb(decoded, fileproperties)
     elif slmtype == "benk_spectra":
-        print('benkspectra')
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
         df = zero1db_dataprep(decoded, fileproperties, audiofolder)
@@ -178,7 +176,7 @@ f5 = 'testdata/GL 22  007_LoggedBB.txt'
 f6= 'testdata/audio/01db/080945_080954.mp3'
 lst =['testdata/audio/01db/080945_080954.mp3','testdata/01.csv', 'testdata/audio/01db/081001_081010.mp3' ]
 
-audiofolder="c:/tmp"
+audiofolder="testdata/audio/01db"
 contents, filename  = simulate_dash_upload(f3)
 if not isinstance(contents, list):
     contents = [contents]

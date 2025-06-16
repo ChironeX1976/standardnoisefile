@@ -39,42 +39,65 @@ def zero1db_dataprep(decodeddata:str, fileproperties, audiofolder):
                 freqindx = (lst_sp.index(c))  # get index of columname that is found
                 # rename with corresponding index from the standard column-names
                 df.rename(columns={c: lst_standaardspectrumkolomnamen[freqindx]}, inplace=True)
-    df[str_c_soundpath] = np.nan
-    lst_interesting = lst_flds_a + lst_flds_minmax + lst_standaardspectrumkolomnamen + [str_c_soundpath]
+    df[str_c_soundpath] = ''
+    df['sound']= np.nan
+    lst_interesting = lst_flds_a + lst_flds_minmax + lst_standaardspectrumkolomnamen + [str_c_soundpath] + ['sound']
     df = df[lst_interesting]
-    # update audio if a folder name is given and it exists
+    # update soundpath and the marker sound if an audiofolder name is valid
+    df = update_soundpath_and_soundmarker(df, audiofolder, datum)
+    #print(df[~df['soundpath'].isnull()])
+    # print(df.columns.tolist())
+    return df
+def update_soundpath_and_soundmarker(df, audiofolder, datum):
     if not audiofolderisvalid(audiofolder):
-        pass # do nothing
+        pass  # do nothing
     else:
         updates = maaktijdslijstaudio(datum, audiofolder)
         # Apply updates
-        for timestamp_str, new_path in updates.items():
-            timestamp = pd.to_datetime(timestamp_str)
-            df.loc[df['isodatetime'] == timestamp, 'soundpath'] = new_path
-    #print(df[~df['soundpath'].isnull()])
-    print(df.columns.tolist())
+        for update in updates:
+            timestamp_start_str = update[0]
+            timestamp_stop_str = update[1]
+            new_path = update[2]
+            timestamp_start = pd.to_datetime(timestamp_start_str)
+            df.loc[df['isodatetime'] == timestamp_start, 'soundpath'] = new_path
+            timestamp_stop = pd.to_datetime(timestamp_stop_str)
+            df.loc[(df['isodatetime'] >= timestamp_start) & (df['isodatetime'] <= timestamp_stop), 'sound'] = 1
     return df
-
 def col_lst_always(str_c_time, str_c_laeq1s):
     """Put the columnames that are always interesting into list"""
     lst = [str_c_time, str_c_laeq1s]
     return lst
 def maaklijstaudio(folderpth):
+    '''makes a file list of mp3's that are in a folder'''
     lst_mp3 =[]
     for file in os.listdir(folderpth):
         if file.lower().endswith('.mp3'):
             lst_mp3.append(file)
     return lst_mp3
 def maaktijdslijstaudio(datum, folderpth):
+    ''' The mp3's have a fixed filename - string - that represents the starttime, stoptime of the file.
+    A list of filenames is made and transformed into another
+    list with the timestamps starttime, stoptime with corresponding .mp3
+    :param:
+        datum: to make the datetime notation in isoformat
+        folderpath: here are the mp3's
+    :returns: list (starttime, stoptime, mp3name)
+    '''
     lst_mp3=maaklijstaudio(folderpth)
-    lst_isodatetime=[]
+    lst_isodatetime_start=[]
+    lst_isodatetime_stop = []
     for mp3 in lst_mp3:
-        timed = mp3[0:6]
-        format = '%H%M%S'
-        timed = datetime.strptime(timed, format).time()
-        isodatetime = datetime.combine(datum,timed )
-        lst_isodatetime.append(isodatetime)
-    return dict(zip(lst_isodatetime,lst_mp3))
+        timed_start = mp3[0:6]
+        timed_stop = mp3[7:13]
+        formatt = '%H%M%S'
+        timed_start = datetime.strptime(timed_start, formatt).time()
+        isodatetime_start = datetime.combine(datum,timed_start)
+        lst_isodatetime_start.append(isodatetime_start)
+
+        timed_stop = datetime.strptime(timed_stop, formatt).time()
+        isodatetime_stop = datetime.combine(datum, timed_stop)
+        lst_isodatetime_stop.append(isodatetime_stop)
+    return list(zip(lst_isodatetime_start,lst_isodatetime_stop,lst_mp3))
 def audiofolderisvalid(audiofolder):
     folderisvalid = False
     if audiofolder == "":
