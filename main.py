@@ -1,8 +1,6 @@
 from dash import dash, Input, Output, State
 from layout import layout_dash
 from data import data_init, saveas_standard_csv_in_data_dir
-import webbrowser
-
 
 # ######################################################################################
 # # #########                 BUILD DASHBOARD                                  #########
