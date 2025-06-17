@@ -9,9 +9,10 @@ def c_knoppen():
     voorbeeldpath = str(get_std_audio_path())
     c = html.Div([html.Img(src="assets/logo.png", width=240),
                   html.H1("Standardize - files tool"),
-                  html.H2('Upload the .txt or .csv data in the drag and drop section.'),
-                  html.H3('If a .txt or .csv-file is recognized, then it will be standardized.'),
-                  html.H3('You can save the standardized data to a chosen path.'),
+                  html.H4('Upload the .txt or .csv data in the drag and drop section.'),
+                  html.H4('If a .txt or .csv-file is recognized, it will be standardized.'),
+                  html.H4('Wait for filestatus to finish.'),
+                  html.H4('You can then save the standardized data to a chosen path.'),
                   html.Hr(),
                   html.Br(),
                   html.P('Optional: associate 01dB-fusion audio-files (.mp3)', className ="custom-audiotext"),
@@ -35,7 +36,7 @@ def c_knoppen():
                       id="cl_path", type="text",
                       value=str(get_std_save_path()), placeholder="c:/tmp/standardfile01db.txt", className="custom-saveaspath"),
                   html.P('Output columns (always): isodatetime, laeq1s'),
-                  html.P('Output columns (optional): lzeq25Hz -> lzeq20kHz; markercolumns; Lafmin, Lafmax')
+                  html.P('Output columns (optional): lzeq25Hz -> lzeq20kHz; markercolumns; Lafmin, Lafmax;')
                   ]),
 
     return c
