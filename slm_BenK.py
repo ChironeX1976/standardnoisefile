@@ -1,5 +1,5 @@
 from  std_columns import (standardize,  standard_column_names, standardize_spectrumdata, lst_standard_statscolumn_names,lst_standard_spectrumcolumn_names, standardize_statsdata ,
-                          standardize_minmaxdata)
+                          standardize_minmaxdata, col_lst_always)
 import pandas as pd
 import io
 import numpy as np
@@ -54,7 +54,6 @@ def b_en_k_2250dataprep_spec (decodeddata,fileproperties):
     # create time object
     df[str_c_time] = pd.to_datetime(df[str_c_time], format='%d/%m/%Y %H:%M:%S')
     return df
-
 def b_en_k_fldslst_marker_all(df):
     """get all fields whith marker data in list
     marker data-value is always 0 or 1 and nothing else
@@ -83,10 +82,7 @@ def b_enkfldlst_marker_used(lstall, lstunused):
     c2 = Counter(lstunused)
     diff = c1 - c2
     return list(diff.elements())
-def col_lst_always(str_c_time, str_c_laeq1s):
-    """Put the columnames that are always interesting into list"""
-    lst = [str_c_time, str_c_laeq1s]
-    return lst
+
 def b_en_k_fldslst_stats():
     """Put statistical fields, that are always interesting, into list"""
     lst = ['LAF1,0', 'LAF5,0', 'LAF10,0', 'LAF50,0', 'LAF90,0', 'LAF95,0', 'LAF99,0']

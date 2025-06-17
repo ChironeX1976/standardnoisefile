@@ -10,8 +10,8 @@ def c_knoppen():
     c = html.Div([html.Img(src="assets/logo.png", width=240),
                   html.H1("Standardize - files tool"),
                   html.H2('Upload the .txt or .csv data in the drag and drop section.'),
-                  html.H3('If a .txt or .csv-file is recognized, then it will be standardized '
-                          'and you can then save the standardized data to a chosen path.'),
+                  html.H3('If a .txt or .csv-file is recognized, then it will be standardized.'),
+                  html.H3('You can save the standardized data to a chosen path.'),
                   html.Hr(),
                   html.Br(),
                   html.P('Optional: associate 01dB-fusion audio-files (.mp3)', className ="custom-audiotext"),

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from  std_columns import standard_column_names, lst_standard_spectrumcolumn_names,  standardize_minmaxdata, lst_spectra_spellings
+from  std_columns import (standard_column_names, lst_standard_spectrumcolumn_names,
+                          standardize_minmaxdata, lst_spectra_spellings, col_lst_always)
 from dateutil import parser
 import io
 from datetime import datetime
@@ -50,23 +51,22 @@ def zero1db_dataprep(decodeddata:str, fileproperties, audiofolder):
     return df
 def update_soundpath_and_soundmarker(df, audiofolder, datum):
     if not audiofolderisvalid(audiofolder):
-        pass  # do nothing
-    else:
-        updates = maaktijdslijstaudio(datum, audiofolder)
-        # Apply updates
-        for update in updates:
-            timestamp_start_str = update[0]
-            timestamp_stop_str = update[1]
-            new_path = update[2]
-            timestamp_start = pd.to_datetime(timestamp_start_str)
-            df.loc[df['isodatetime'] == timestamp_start, 'soundpath'] = new_path
-            timestamp_stop = pd.to_datetime(timestamp_stop_str)
-            df.loc[(df['isodatetime'] >= timestamp_start) & (df['isodatetime'] <= timestamp_stop), 'sound'] = 1
+        return df  # do nothing if folder is invalid
+    # Create DataFrame from audio file time ranges
+    updates = maaktijdslijstaudio(datum, audiofolder)
+    audio_df = pd.DataFrame(updates, columns=['start', 'stop', 'soundpath'])
+    # Sort both DataFrames by time for merge_asof
+    df = df.sort_values('isodatetime')
+    audio_df = audio_df.sort_values('start')
+    # Use merge_asof to align each row with the closest audio start time
+    df = pd.merge_asof(df, audio_df, left_on='isodatetime', right_on='start', direction='backward')
+    # Mark rows where isodatetime is within the audio interval
+    df['sound'] = df.apply(
+        lambda row: 1 if pd.notnull(row['stop']) and row['start'] <= row['isodatetime'] <= row['stop'] else np.nan,
+        axis=1)
+    # Drop helper columns
+    df.drop(columns=['start', 'stop'], inplace=True)
     return df
-def col_lst_always(str_c_time, str_c_laeq1s):
-    """Put the columnames that are always interesting into list"""
-    lst = [str_c_time, str_c_laeq1s]
-    return lst
 def maaklijstaudio(folderpth):
     '''makes a file list of mp3's that are in a folder'''
     lst_mp3 =[]

@@ -1,28 +1,25 @@
-import chardet
-import pandas as pd
-import csv
-import io
 import base64
+import chardet
+import csv
+import pandas as pd
 import mimetypes
 import os
 from slm_01db import zero1db_dataprep
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
 from std_columns import standard_column_names
 
+"""THIS FILE IS ONLY FOR TESTING PURPOSES"""
 
 def simulate_dash_upload(file_path):
     # Read the file in binary mode
     with open(file_path, 'rb') as f:
         file_bytes = f.read()
-
     # Guess the MIME type from file extension
     mime_type, _ = mimetypes.guess_type(file_path)
     if mime_type is None:
         mime_type = 'text/plain'  # default fallback
-
     # Base64 encode the content
     base64_content = base64.b64encode(file_bytes).decode('utf-8')
-
     # Construct the same string as dcc.Upload would provide
     contents = f"data:{mime_type};base64,{base64_content}"
     filename = os.path.basename(file_path)
@@ -177,7 +174,7 @@ f6= 'testdata/audio/01db/080945_080954.mp3'
 lst =['testdata/audio/01db/080945_080954.mp3','testdata/01.csv', 'testdata/audio/01db/081001_081010.mp3' ]
 
 audiofolder="testdata/audio/01db"
-contents, filename  = simulate_dash_upload(f3)
+contents, filename  = simulate_dash_upload(f5)
 if not isinstance(contents, list):
     contents = [contents]
     filename = [filename]

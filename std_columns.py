@@ -142,7 +142,10 @@ def check_isoneoflist_inbiglist (checklist, biglist):
     else:
         check_isoneoflist_inbiglist = False
     return check_isoneoflist_inbiglist
-
+def col_lst_always(str_c_time, str_c_laeq1s):
+    """Put the columnames that are always interesting into list"""
+    lst = [str_c_time, str_c_laeq1s]
+    return lst
 
 # def drop_last_non_unique_column(df):
 #     """

@@ -26,8 +26,9 @@ def save_output(n_clicks,dict_df,targetpath):
     Output("cl_filestatus", "children"),
     Output("cl_store_df", "data"),
     Input('cl_upload01', 'contents'),
-    State('cl_upload01', 'filename'), prevent_initial_call=True)
-def load_data(contents, filenames):
+    State('cl_upload01', 'filename'),
+    State('cl_audiofolder',"value"), prevent_initial_call=True)
+def load_data(contents, filenames, audiofolder):
     """laad de data,
     :param filenames and contents of the uploaded files
     :returns
@@ -37,7 +38,7 @@ def load_data(contents, filenames):
     if not isinstance(contents, list):
         contents = [contents]
         filenames = [filenames]
-    geldigheid, dict_df = data_init(contents,filenames)
+    geldigheid, dict_df = data_init(contents,filenames, audiofolder)
     return geldigheid,dict_df
 
 if __name__ == '__main__':
