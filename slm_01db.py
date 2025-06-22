@@ -58,14 +58,34 @@ def update_soundpath_and_soundmarker(df, audiofolder, datum):
     # Sort both DataFrames by time for merge_asof
     df = df.sort_values('isodatetime')
     audio_df = audio_df.sort_values('start')
+
     # Use merge_asof to align each row with the closest audio start time
     df = pd.merge_asof(df, audio_df, left_on='isodatetime', right_on='start', direction='backward')
+    filtered_df = df[(df['isodatetime'] >= '2025-05-26 09:30:00') & (df['isodatetime'] <= '2025-05-26 09:30:35')]
+    filtered_df = filtered_df[['isodatetime', 'sound', 'soundpath_x', 'soundpath_y']]
     # Mark rows where isodatetime is within the audio interval
     df['sound'] = df.apply(
         lambda row: 1 if pd.notnull(row['stop']) and row['start'] <= row['isodatetime'] <= row['stop'] else np.nan,
         axis=1)
+
+    mask = (df['sound'] == 1.0) & (df['soundpath_y'].notna())
+
+    # Identify the start of each block of True values in the mask
+    block_start = (mask != mask.shift(fill_value=False)) & mask
+
+    # Get the index of the first row in each valid block
+    first_indexes = df.index[block_start].tolist()
+
+    # Create the new column filled with NaN
+    df['soundpath_z'] = ''
+
+    # Set only that first match
+    df.loc[first_indexes, 'soundpath_z'] = df.loc[first_indexes, 'soundpath_y']
+
     # Drop helper columns
-    df.drop(columns=['start', 'stop'], inplace=True)
+    df.drop(columns=['start', 'stop', 'soundpath_x', 'soundpath_y'], inplace=True)
+    df.rename(columns={'soundpath_z': 'soundpath'}, inplace=True)
+    df['soundpath'] = df['soundpath'].replace('', np.nan)
     return df
 def maaklijstaudio(folderpth):
     '''makes a file list of mp3's that are in a folder'''

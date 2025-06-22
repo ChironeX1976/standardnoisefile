@@ -90,7 +90,7 @@ def lst_stats_spellings():
     lst= (["LA1", "LA5", "LA10", "LA50", "LA90", "LA95", "LA99"],
           ["LAF1", "LAF5", "LAF10", "LAF50", "LAF90", "LAF95", "LAF99"],
           ["LAF1,0","LAF5,0","LAF10,0","LAF50,0","LAF90,0","LAF95,0","LAF99,0"],
-          ["la1","la5","la10","la50","la90","la95","la99"])
+          ["laf1","laf5","laf10","laf50","laf90","laf95","laf99"])
     return lst
 def lst_spectra_spellings():
     """Even when the same brand of sound level meter is used, the column-names for terts-band frequencies
