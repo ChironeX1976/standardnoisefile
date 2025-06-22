@@ -40,14 +40,14 @@ def zero1db_dataprep(decodeddata:str, fileproperties, audiofolder):
                 freqindx = (lst_sp.index(c))  # get index of columname that is found
                 # rename with corresponding index from the standard column-names
                 df.rename(columns={c: lst_standaardspectrumkolomnamen[freqindx]}, inplace=True)
+    df[str_c_exclude]=np.nan
     df[str_c_soundpath] = ''
     df['sound']= np.nan
-    lst_interesting = lst_flds_a + lst_flds_minmax + lst_standaardspectrumkolomnamen + [str_c_soundpath] + ['sound']
+    lst_interesting = lst_flds_a + lst_flds_minmax + lst_standaardspectrumkolomnamen + [str_c_soundpath] + ['sound'] + [str_c_exclude]
     df = df[lst_interesting]
     # update soundpath and the marker sound if an audiofolder name is valid
     df = update_soundpath_and_soundmarker(df, audiofolder, datum)
-    #print(df[~df['soundpath'].isnull()])
-    # print(df.columns.tolist())
+
     return df
 def update_soundpath_and_soundmarker(df, audiofolder, datum):
     if not audiofolderisvalid(audiofolder):
@@ -61,8 +61,8 @@ def update_soundpath_and_soundmarker(df, audiofolder, datum):
 
     # Use merge_asof to align each row with the closest audio start time
     df = pd.merge_asof(df, audio_df, left_on='isodatetime', right_on='start', direction='backward')
-    filtered_df = df[(df['isodatetime'] >= '2025-05-26 09:30:00') & (df['isodatetime'] <= '2025-05-26 09:30:35')]
-    filtered_df = filtered_df[['isodatetime', 'sound', 'soundpath_x', 'soundpath_y']]
+    # filtered_df = df[(df['isodatetime'] >= '2025-05-26 09:30:00') & (df['isodatetime'] <= '2025-05-26 09:30:35')]
+    # filtered_df = filtered_df[['isodatetime', 'sound', 'soundpath_x', 'soundpath_y']]
     # Mark rows where isodatetime is within the audio interval
     df['sound'] = df.apply(
         lambda row: 1 if pd.notnull(row['stop']) and row['start'] <= row['isodatetime'] <= row['stop'] else np.nan,
@@ -76,7 +76,7 @@ def update_soundpath_and_soundmarker(df, audiofolder, datum):
     # Get the index of the first row in each valid block
     first_indexes = df.index[block_start].tolist()
 
-    # Create the new column filled with NaN
+    # Create the new column filled with nothing
     df['soundpath_z'] = ''
 
     # Set only that first match
