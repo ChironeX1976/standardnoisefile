@@ -6,6 +6,7 @@ from data import data_init, saveas_standard_csv_in_data_dir
 # # #########                 BUILD DASHBOARD                                  #########
 # ######################################################################################
 app = dash.Dash(__name__)
+server=app.server # <-- belangrijk voor deployment
 app.layout = layout_dash()
 # ######################################################################################
 # # #########                 CALLBACKS                                        #########
