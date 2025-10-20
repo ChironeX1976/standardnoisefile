@@ -1,5 +1,7 @@
 **make a standard file with noise data.**
 
+see environmental noise calculation dashboard
+
 **required fields**
 timestamp, 
 laeq1s, 
