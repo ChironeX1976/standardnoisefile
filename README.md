@@ -1,5 +1,6 @@
 make a standard file with noise data.
-**required fields: **
+
+**required fields**
 isodatetime timestamp
 laeq1s
 markers (value is nan or 1)
