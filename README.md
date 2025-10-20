@@ -1,7 +1,7 @@
 **make a standard file with noise data.**
 
 **required fields**
-isodatetime timestamp, 
+timestamp, 
 laeq1s, 
 markers (value is nan or 1) - exclude marker is mandatory. 
 
