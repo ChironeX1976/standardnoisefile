@@ -12,6 +12,7 @@ statistics per second laf 1, 5, 10, 50, ...
 
 
 
-example
+**example**
+
 isodatetime	              laeq1s	  exclude	
 2024-05-20 20:04:42	      43.01				1.0	
