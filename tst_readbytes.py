@@ -6,6 +6,7 @@ import mimetypes
 import os
 from slm_01db import zero1db_dataprep
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
+from slm_svantek import svantek_dataprep
 from std_columns import standard_column_names
 
 """THIS FILE IS ONLY FOR TESTING PURPOSES"""
@@ -61,12 +62,17 @@ def get_slmtype(sample_text):
             slmtype = 'benk_bb'
         if 'lzeq 500hz' in first_line:
             slmtype = 'benk_spectra'
+    elif '// ascii view for the file' in first_line:
+        invalid = False
+        slmtype ='svantek'
     else:
         slmtype = "unknown slm file"
     return invalid, slmtype
 def get_rowstoskip(slmtype):
     if slmtype == 'fusion':
         skiprows = 1
+    if slmtype == 'svantek':
+        skiprows = 3
     else:
         skiprows = 0
     return skiprows
@@ -161,6 +167,8 @@ def data_prep(decoded:str, fileproperties, audiofolder):
         df = zero1db_dataprep(decoded, fileproperties, audiofolder)
     elif slmtype  == "standardized":
         print('detectie op gestandardizeerde file bestaat niet')
+    elif slmtype == "svantek":
+        df = svantek_dataprep(decoded, fileproperties, audiofolder)
     else:
         print(slmtype, ", not programmed yet")
     return df
@@ -171,10 +179,12 @@ f3 = 'testdata/01.csv'
 f4 = 'testdata/dummy_file_nodata.txt'
 f5 = 'testdata/GL 22  007_LoggedBB.txt'
 f6= 'testdata/audio/01db/080945_080954.mp3'
+f7 = 'testdata/Svan/svan02/L14_noblockoffsetwithcomments.csv'
+#f7 = 'testdata/Svan/svan02/L15.csv'
 lst =['testdata/audio/01db/080945_080954.mp3','testdata/01.csv', 'testdata/audio/01db/081001_081010.mp3' ]
 
-audiofolder="testdata/audio/01db"
-contents, filename  = simulate_dash_upload(f5)
+audiofolder="testdata/audio/svan01"
+contents, filename  = simulate_dash_upload(f7)
 if not isinstance(contents, list):
     contents = [contents]
     filename = [filename]
