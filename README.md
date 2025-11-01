@@ -1,38 +1,37 @@
-**make a standard file with sound level meter data.**
+# **make a standard file with sound level meter data.**
 
-processes export from SVAN959, 01dB-fusion and Bruel and Kjaer 2250 en 2270
-to a standard file with sound level meter data
+Processes export from sound level meters SVAN959, 01dB-fusion,  Bruel and Kjaer 2250 en 2270
 
-
+To a standard file with sound level meter data that can be used to perform calculations in 
+a deployed app
 
 --> SEE: https://environmental-noise-calculation.onrender.com/
--->  https://github.com/ChironeX1976/environmental-noise-calculation-dashboard/tree/main
+
+--> SEE: https://github.com/ChironeX1976/environmental-noise-calculation-dashboard/tree/main
 
 
-**required fields**
+**The minimal required output of columns:**
 
-timestamp, 
+    timestamp (isodatetime), 
 
-laeq1s, 
+    laeq1s (float), 
 
-markers (value is nan or 1) - exclude marker is mandatory. 
+    markers (value is nan or 1) - exclude marker is mandatory. 
 
 
+**optional columns**
 
-**optional fields**
+    spectral data: lzeq25hz -> lzeq20000hz,
 
-spectral data: lzeq25hz -> lzeq20000hz,
+    soundpath, 
 
-soundpath, 
-
-statistics per second laf 1, 5, 10, 50, ...
-
+    statistics per second laf 1, 5, 10, 50, ...
 
 
 **example**
 
-isodatetime	              laeq1s	  exclude	
-
-2024-05-20 20:04:42	      43.01				1.0	
-2024-05-20 20:04:43       45.00       
-...
+    isodatetime             laeq1s        exclude	lzeq25hz    ....
+    -----------------------------------------------------------------
+    2024-05-20 20:04:42      43.01	        1.0	    50.30
+    2024-05-20 20:04:43      45.00          
+    ...
