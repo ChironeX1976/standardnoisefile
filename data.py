@@ -4,6 +4,7 @@ import csv
 import pandas as pd
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
 from slm_01db import zero1db_dataprep
+from slm_svantek import svantek_dataprep
 from std_columns import standard_column_names
 def parse_contents(contents, filename):
     """ Decodeert de inhoud en leest de data in als string en maakt er decoded_bytes van.
@@ -94,8 +95,10 @@ def data_prep(decoded:str, fileproperties, audiofolder):
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
         df = zero1db_dataprep(decoded, fileproperties, audiofolder)
-    elif slmtype  == "standardized":
+    elif slmtype == "standardized":
         print('detectie op gestandardizeerde file bestaat niet')
+    elif slmtype == "svantek":
+        df = svantek_dataprep(decoded, fileproperties, audiofolder)
     else:
         print(slmtype, ", not programmed yet")
     return df
@@ -136,12 +139,17 @@ def get_slmtype(sample_text):
             slmtype = 'benk_bb'
         if 'lzeq 500hz' in first_line:
             slmtype = 'benk_spectra'
+    elif '// ascii view for the file' in first_line:
+        invalid = False
+        slmtype ='svantek'
     else:
         slmtype = "unknown slm file"
     return invalid, slmtype
 def get_rowstoskip(slmtype):
     if slmtype == 'fusion':
         skiprows = 1
+    if slmtype == 'svantek':
+        skiprows = 3
     else:
         skiprows = 0
     return skiprows
