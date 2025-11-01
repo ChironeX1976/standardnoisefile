@@ -29,6 +29,7 @@ def svantek_dataprep(decodeddata, fileproperties, audiofolder):
     # reorganize markers
     df = markers_reorganize(df)
     # clean order columns
+    df[str_c_soundpath] = ''
     lst_standard_spectrumcolumns = lst_standard_spectrumcolumn_names()
     lst_always = [str_c_time, str_c_laeq1s, str_c_exclude, 'm2', 'm3', 'm4', str_c_soundpath]
     lst_always.extend(lst_standard_spectrumcolumns)
