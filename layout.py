@@ -35,7 +35,7 @@ def c_knoppen():
                   dcc.Input(
                       id="cl_path", type="text",
                       value=str(get_std_save_path()), placeholder="c:/tmp/standardfile01db.txt", className="custom-saveaspath"),
-                  html.P('Output columns (always): isodatetime, laeq1s'),
+                  html.P('Output columns (mandatory): isodatetime, laeq1s, exclude, soundpath'),
                   html.P('Output columns (optional): lzeq25Hz -> lzeq20kHz; markercolumns; Lafmin, Lafmax;')
                   ]),
 
