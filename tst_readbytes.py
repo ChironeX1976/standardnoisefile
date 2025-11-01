@@ -179,11 +179,11 @@ f3 = 'testdata/01.csv'
 f4 = 'testdata/dummy_file_nodata.txt'
 f5 = 'testdata/GL 22  007_LoggedBB.txt'
 f6= 'testdata/audio/01db/080945_080954.mp3'
-f7 = 'testdata/Svan/svan02/L14_noblockoffsetwithcomments.csv'
-#f7 = 'testdata/Svan/svan02/L15.csv'
+#f7 = 'testdata/Svan/svan02/L14_noblockoffsetwithcomments.csv'
+f7 = 'testdata/Svan/svan02/L15.csv'
 lst =['testdata/audio/01db/080945_080954.mp3','testdata/01.csv', 'testdata/audio/01db/081001_081010.mp3' ]
 
-audiofolder="testdata/audio/svan01"
+audiofolder="testdata/audio/svan02"
 contents, filename  = simulate_dash_upload(f7)
 if not isinstance(contents, list):
     contents = [contents]
