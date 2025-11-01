@@ -1,6 +1,12 @@
-**make a standard file with noise data.**
 
---> see environmental noise calculation dashboard
+
+processes export from SVAN959, 01dB-fusion and Bruel and Kjaer 2250 en 2270
+to a standard file with sound level meter data
+
+**make a standard file with sound level meter data.**
+
+--> SEE: https://environmental-noise-calculation.onrender.com/
+--> 
 
 **required fields**
 
