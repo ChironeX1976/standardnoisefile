@@ -6,7 +6,7 @@ from dateutil import parser
 import io
 from datetime import datetime
 import os
-def zero1db_dataprep(decodeddata:str, fileproperties, audiofolder):
+def zero1db_dataprep(decodeddata:str, fileproperties, lst_audiofiles):
     enc = fileproperties['encoding']
     delim = fileproperties['delim']
     skiprows = fileproperties['skiprows']
@@ -45,15 +45,20 @@ def zero1db_dataprep(decodeddata:str, fileproperties, audiofolder):
     df['sound']= np.nan
     lst_interesting = lst_flds_a + lst_flds_minmax + lst_standaardspectrumkolomnamen + [str_c_soundpath] + ['sound'] + [str_c_exclude]
     df = df[lst_interesting]
-    # update soundpath and the marker sound if an audiofolder name is valid
-    df = update_soundpath_and_soundmarker(df, audiofolder, datum)
-
+    # update soundpath and the marker sound
+    #df = update_soundpath_and_soundmarker(df, audiofolder, datum)
+    df = update_soundpath_and_soundmarker(df, datum, lst_audiofiles)
     return df
-def update_soundpath_and_soundmarker(df, audiofolder, datum):
-    if not audiofolderisvalid(audiofolder):
-        return df  # do nothing if folder is invalid
+def update_soundpath_and_soundmarker(df, datum, lst_audiofiles):
+    # def update_soundpath_and_soundmarker(df, audiofolder, datum):
+    #     if not audiofolderisvalid(audiofolder):
+    #         return df  # do nothing if folder is invalid
+
+    if len(lst_audiofiles)==0:
+        return df
     # Create DataFrame from audio file time ranges
-    updates = maaktijdslijstaudio(datum, audiofolder)
+    # updates = maaktijdslijstaudio(datum, audiofolder)
+    updates = maaktijdslijstaudio(datum, lst_audiofiles)
     audio_df = pd.DataFrame(updates, columns=['start', 'stop', 'soundpath'])
     # Sort both DataFrames by time for merge_asof
     df = df.sort_values('isodatetime')
@@ -94,16 +99,18 @@ def maaklijstaudio(folderpth):
         if file.lower().endswith('.mp3'):
             lst_mp3.append(file)
     return lst_mp3
-def maaktijdslijstaudio(datum, folderpth):
+#def maaktijdslijstaudio(datum, folderpth):
+def maaktijdslijstaudio(datum, lst_audiofiles):
     ''' The mp3's have a fixed filename - string - that represents the starttime, stoptime of the file.
     A list of filenames is made and transformed into another
     list with the timestamps starttime, stoptime with corresponding .mp3
     :param:
         datum: to make the datetime notation in isoformat
-        folderpath: here are the mp3's
+        lst_audiofiles: liste of the mp3's
     :returns: list (starttime, stoptime, mp3name)
     '''
-    lst_mp3=maaklijstaudio(folderpth)
+#    lst_mp3=maaklijstaudio(folderpth)
+    lst_mp3=lst_audiofiles
     lst_isodatetime_start=[]
     lst_isodatetime_stop = []
     for mp3 in lst_mp3:
@@ -118,10 +125,10 @@ def maaktijdslijstaudio(datum, folderpth):
         isodatetime_stop = datetime.combine(datum, timed_stop)
         lst_isodatetime_stop.append(isodatetime_stop)
     return list(zip(lst_isodatetime_start,lst_isodatetime_stop,lst_mp3))
-def audiofolderisvalid(audiofolder):
-    folderisvalid = False
-    if audiofolder == "":
-        return folderisvalid
-    if os.path.isdir(audiofolder):
-        folderisvalid = True
-    return folderisvalid
+# def audiofolderisvalid(audiofolder):
+#     folderisvalid = False
+#     if audiofolder == "":
+#         return folderisvalid
+#     if os.path.isdir(audiofolder):
+#         folderisvalid = True
+#     return folderisvalid

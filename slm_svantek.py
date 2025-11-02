@@ -4,7 +4,16 @@ import io
 from dateutil import parser
 from std_columns import lst_standard_spectrumcolumn_names, standard_column_names
 
-def svantek_dataprep(decodeddata, fileproperties, audiofolder):
+##################
+# general settings on SLM:
+#   Menu - Measurement function:
+#       - 1/3 octave
+#   Menu - Input - Measurement setup:
+#       start delay: 0s; integr. period: 1s; rep. cycles: inf; logger: ON
+# audio file settings: !!!PUT USB STICK IN SVAN 959!!! -  Menu - Setup - USB-HOST PORT,
+# Wave recording: PCM, 48 kHz, bits per sample 24
+###############
+def svantek_dataprep(decodeddata, fileproperties, lst_audiofiles):
     # file properties
     enc = fileproperties['encoding']
     delim = fileproperties['delim']
@@ -34,6 +43,11 @@ def svantek_dataprep(decodeddata, fileproperties, audiofolder):
     lst_always = [str_c_time, str_c_laeq1s, str_c_exclude, 'm2', 'm3', 'm4', str_c_soundpath]
     lst_always.extend(lst_standard_spectrumcolumns)
     df = df[lst_always]
+
+    # Only 1 audio file per logfile, the audio file itself contains the start time in metadata,
+    # but it is set equal to the first record in the dataframe
+    file = get_lowest_wav_file_min(lst_audiofiles)
+    df.loc[0, str_c_soundpath] = file
     return df
 
 def svantek_startisodatetime(datum, uur):
@@ -42,6 +56,22 @@ def svantek_startisodatetime(datum, uur):
     datumuur = datum + ' ' + uur
     datumuur = parser.parse(datumuur, yearfirst=True)
     return datumuur
+
+def get_lowest_wav_file_min(lst_audio):
+    """
+    Collects all .wav files and returns the one with the
+    lexicographically smallest filename using the min() function.
+
+    Args:
+        folderpth (str): The path to the folder.
+
+    Returns:
+        str or None: The filename of the lowest .wav file, or None if none are found.
+    """
+    if lst_audio:
+        return min(lst_audio)
+    else:
+        return None
 
 def rawfile_read_all_lines(decoded, enc):
     try:

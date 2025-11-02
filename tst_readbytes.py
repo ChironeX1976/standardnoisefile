@@ -71,7 +71,7 @@ def get_slmtype(sample_text):
 def get_rowstoskip(slmtype):
     if slmtype == 'fusion':
         skiprows = 1
-    if slmtype == 'svantek':
+    elif slmtype == 'svantek':
         skiprows = 3
     else:
         skiprows = 0
@@ -101,7 +101,7 @@ def parse_contents(contents, filename):
         print(f"Fout bij verwerken van bestand {filename}: {str(e)}")
         return
     return
-def data_init (contents, filenames, audiofolder):
+def data_init (contents, filenames, audiofolder, lstaudiofiles):
     ''' Data initialisation
     Check if the inputfile is valid
     If it is valid, then standardize the file and return a dictionary of the dataframe
@@ -125,7 +125,7 @@ def data_init (contents, filenames, audiofolder):
             if fileproperties['invalid'] == True:
                 geldigheid = 'niet geldige file'
             else:
-                df = data_prep(strdecoded, fileproperties, audiofolder)
+                df = data_prep(strdecoded, fileproperties, audiofolder, lstaudiofiles)
                 geldigheid = 'geldige file van ' + fileproperties['slmtype']
                 if len(dict_df) == 0: # if there is nothing in the dfdict variable, then it is the first filename
                     dict_df = df.to_dict('records')
@@ -157,14 +157,14 @@ def get_fileproperties(decoded, filename):
     values =[filename, enc, invalid, slmtype, delim, skiprows]
     properties=dict(zip(keys,values))
     return properties
-def data_prep(decoded:str, fileproperties, audiofolder):
+def data_prep(decoded:str, fileproperties, audiofolder, lstaudiofiles):
     slmtype = fileproperties['slmtype']
     if slmtype == "benk_bb":
         df = b_en_k_2250dataprep_bb(decoded, fileproperties)
     elif slmtype == "benk_spectra":
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
-        df = zero1db_dataprep(decoded, fileproperties, audiofolder)
+        df = zero1db_dataprep(decoded, fileproperties, audiofolder, lstaudiofiles)
     elif slmtype  == "standardized":
         print('detectie op gestandardizeerde file bestaat niet')
     elif slmtype == "svantek":
@@ -174,20 +174,20 @@ def data_prep(decoded:str, fileproperties, audiofolder):
     return df
 
 # f1 = 'testdata/GL75-050_LoggedSpectra.txt'
-f2 = 'testdata/GL75-050_LoggedBB.txt'
-f3 = 'testdata/01.csv'
-f4 = 'testdata/dummy_file_nodata.txt'
-f5 = 'testdata/GL 22  007_LoggedBB.txt'
-f6= 'testdata/audio/01db/080945_080954.mp3'
+#f2 = 'testdata/GL75-050_LoggedBB.txt'
+f3 = 'testdata/01db/01.csv'
+#f4 = 'testdata/dummy_file_nodata.txt'
+#f5 = 'testdata/GL 22  007_LoggedBB.txt'
+#f6= 'testdata/audio/01db/080945_080954.mp3'
 #f7 = 'testdata/Svan/svan02/L14_noblockoffsetwithcomments.csv'
-f7 = 'testdata/Svan/svan02/L15.csv'
+#f7 = 'testdata/Svan/svan01/L16.csv'
 lst =['testdata/audio/01db/080945_080954.mp3','testdata/01.csv', 'testdata/audio/01db/081001_081010.mp3' ]
 
-audiofolder="testdata/audio/svan02"
-contents, filename  = simulate_dash_upload(f7)
+audiofolder="testdata/Svan/svan01"
+contents, filename  = simulate_dash_upload(f3)
 if not isinstance(contents, list):
     contents = [contents]
     filename = [filename]
-geldigheid, dict_df = data_init(contents, filename, audiofolder)
+geldigheid, dict_df = data_init(contents, filename, audiofolder, [])
 print(geldigheid)
 

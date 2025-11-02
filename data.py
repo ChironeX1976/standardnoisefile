@@ -1,11 +1,13 @@
 import base64
 import chardet
 import csv
+import io
 import pandas as pd
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
 from slm_01db import zero1db_dataprep
 from slm_svantek import svantek_dataprep
 from std_columns import standard_column_names
+
 def parse_contents(contents, filename):
     """ Decodeert de inhoud en leest de data in als string en maakt er decoded_bytes van.
         Retourneert niks als het geen textbestand is """
@@ -31,7 +33,7 @@ def parse_contents(contents, filename):
         print(f"Fout bij verwerken van bestand {filename}: {str(e)}")
         return
     return
-def data_init (contents, filenames, audiofolder):
+def data_init (contents, filenames, lstaudiofiles):
     ''' Data initialisation
     Check if the inputfile is valid
     If it is valid, then standardize the file and return a dictionary of the dataframe
@@ -55,7 +57,7 @@ def data_init (contents, filenames, audiofolder):
             if fileproperties['invalid'] == True:
                 geldigheid = 'niet geldige file'
             else:
-                df = data_prep(strdecoded, fileproperties, audiofolder)
+                df = data_prep(strdecoded, fileproperties, lstaudiofiles)
                 geldigheid = 'geldige file van ' + fileproperties['slmtype']
                 if len(dict_df) == 0: # if there is nothing in the dfdict variable, then it is the first filename
                     dict_df = df.to_dict('records')
@@ -87,18 +89,18 @@ def get_fileproperties(decoded, filename):
     values =[filename, enc, invalid, slmtype, delim, skiprows]
     properties=dict(zip(keys,values))
     return properties
-def data_prep(decoded:str, fileproperties, audiofolder):
+def data_prep(decoded:str, fileproperties, lst_audiofiles):
     slmtype = fileproperties['slmtype']
     if slmtype == "benk_bb":
         df = b_en_k_2250dataprep_bb(decoded, fileproperties)
     elif slmtype == "benk_spectra":
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
-        df = zero1db_dataprep(decoded, fileproperties, audiofolder)
+        df = zero1db_dataprep(decoded, fileproperties, lst_audiofiles)
     elif slmtype == "standardized":
         print('detectie op gestandardizeerde file bestaat niet')
     elif slmtype == "svantek":
-        df = svantek_dataprep(decoded, fileproperties, audiofolder)
+        df = svantek_dataprep(decoded, fileproperties, lst_audiofiles)
     else:
         print(slmtype, ", not programmed yet")
     return df
@@ -148,14 +150,58 @@ def get_slmtype(sample_text):
 def get_rowstoskip(slmtype):
     if slmtype == 'fusion':
         skiprows = 1
-    if slmtype == 'svantek':
+    elif slmtype == 'svantek':
         skiprows = 3
     else:
         skiprows = 0
     return skiprows
-def saveas_standard_csv_in_data_dir(dict_df, f):
-    str_c_laeq1s, str_c_time, str_c_soundpath, str_c_exclude, lst_c_minmax = standard_column_names()
-    df = pd.DataFrame(dict_df)
-    df[str_c_time] = pd.to_datetime(df[str_c_time])
-    df.to_csv(f, sep="\t", index=False)
-    return f"Bestand {f} , data saved"
+
+def check_audio_extensions(file_list):
+    """
+    Checks if all filenames in the provided list end with '.wav' or '.mp3'.
+
+    Args:
+        file_list (list): A list of filenames (strings).
+
+    Returns:
+        list: The original list if all extensions are valid,
+              or an empty list if any extension is invalid.
+    """
+
+    # Define the valid extensions (converted to lowercase for case-insensitive checking)
+    valid_extensions = ('.wav', '.mp3')
+
+    for file in file_list:
+        # Convert the filename to lowercase before checking the end
+        if not file.lower().endswith(valid_extensions):
+            # As soon as one invalid file is found, return an empty list immediately
+            return []
+
+    # If the loop completes without finding any invalid files, return the original list
+    return file_list
+
+# def saveas_standard_csv_in_data_dir(dict_df, f):
+#     str_c_laeq1s, str_c_time, str_c_soundpath, str_c_exclude, lst_c_minmax = standard_column_names()
+#     df = pd.DataFrame(dict_df)
+#     df[str_c_time] = pd.to_datetime(df[str_c_time])
+#     df.to_csv(f, sep="\t", index=False)
+#     return f"Bestand {f} , data saved"
+
+def saveas_standard_csv_in_data_dir2(dict_df): # columnsalways, columnsmarkers, kolomvolgorde):
+      prefix =  'std_'
+      filename = prefix + "filename.txt"
+      df = pd.DataFrame(dict_df)
+      df['isodatetime'] = pd.to_datetime(df['isodatetime'], format='ISO8601')
+#     # dictionaries 'forget' the column order, apply a list with certain order before saving
+#     lst = columnsalways + columnsmarkers
+#     for k in kolomvolgorde:
+#         if k not in lst:
+#             lst.append(k)
+#     df = df[lst]
+     # Zet DataFrame om naar CSV in geheugen
+      buffer = io.StringIO()
+      df.to_csv(buffer, sep="\t", index=False)
+      buffer.seek(0)
+      datastring = buffer.getvalue()
+#     # Start download
+      return datastring, filename
