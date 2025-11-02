@@ -8,14 +8,16 @@ def c_knoppen():
     """make html-components left on the webpage"""
     #voorbeeldpath = str(get_std_audio_path())
     c = html.Div([html.Img(src="assets/logo.png", width=240),
-                  html.H1("Standardize - files tool"),
-                  html.H4('Upload the .txt or .csv data in the drag and drop section.'),
-                  html.H4('If a .txt or .csv-file is recognized, it will be standardized.'),
-                  html.H4('Wait for filestatus to finish.'),
-                  html.H4('You can then save the standardized data to a chosen path.'),
+                  html.H1("Make a standard datafile from sound level meter"),
+                  html.H2("B&K2250, 2270, 01db-fusion or SVANTEK959"),
+                  dcc.Link(
+                      'View Instructions',
+                      href='assets/instructions.html',  # Path relative to the app root
+                      target='_blank'  # Optional: Opens the link in a new tab
+                  ),
                   html.Hr(),
                   html.Br(),
-                  html.P('Optional: Add audiofiles', className ="custom-audiotext"),
+                  html.H1('Optional: audiofiles', className ="custom-audiotext"),
 #
 #                 html.P('Optional: associate 01dB-fusion audio-files (.mp3)', className="custom-audiotext"),
 #                  html.Div(['Audiofolder path, eg.   ', html.A(voorbeeldpath), ' or no audio'],
@@ -25,15 +27,16 @@ def c_knoppen():
 #                            className="custom-audiopath"),
                   dcc.Upload(id='cl_upload_audio',
                              children=html.Div(
-                                 ['Drag and Drop .wav or .mp3: ', html.A('multiple (01dB) or one (Svantek959)')]),
+                                 ['one or multiple .wav or .mp3 - file(s) ', html.A('...')]),
                              multiple=True,
                              className="custom-audiopath",
                              ),
                   html.Br(),
                   html.Div(id='cl_divaudiofiles', children='...audiofile(s)...', className ="custom-audiotext"),
                   html.Br(),
+                  html.H1('Datafiles'),
                   dcc.Upload(id='cl_upload01',
-                             children=html.Div(['Drag and Drop or ', html.A('Select (multiple) .csv or .txt Files')]),
+                             children=html.Div(['one or multiple .txt, .csv - file(s)', html.A('...')]),
                              multiple=True,
                              className="custom-upload",
                              ),
@@ -65,7 +68,7 @@ def c_divhelpfields():
         html.Div(id="cl_hlp_columnorder", children=""),
         html.Div(dcc.Store(id='cl_store_df', data=dict())),
         html.Div(dcc.Store(id='cl_store_audiofiles', data=dict()))
-    ], hidden=False)
+    ], hidden=True)
     return c
 def layout_dash():
     c = dbc.Container([

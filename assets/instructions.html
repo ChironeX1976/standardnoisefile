@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>How to use</title>
+    </head>
+<body>
+    <h1>Instructions per sound level meter</h1>
+
+    <hr>
+    <p>
+        Bruel and kjaar 2250, 2270, 01db-fusion and svantek959 are supported
+    </p>
+
+    <p>
+        **Note:** under construction
+    </p>
+
+    <hr>
+
+    <h2>Bruel and Kjaer 2250 or 2270</h2>
+      <img src="bnk-02.png" alt="bruel and kjaer" width="100">
+    <p><b>Export from BZ5503</b></p>
+    <p>
+        Choose ASCII export <b>(.txt)</b>, tab-separated.
+         You need the log files of the broadband and the spectra (2 files)
+         The optional wav-files are hidden in the folder structure of the project and you need to copy them separately
+         drag and drop the 2 files in the upload component
+    </p>
+        <img src="bnk_01.png" alt="bruel and kjaer" width="400">
+    <h2>Svantek959</h2>
+    <p><b>General settings on SLM:</b></p>
+   <p>Menu - Measurement function:
+       - 1/3 octave</p>
+   <p>Menu - Input - Measurement setup:
+       start delay: 0s; integr. period: 1s; rep. cycles: inf; logger: ON</p>
+ <p>audio file settings: !!!PUT USB STICK IN SVAN 959!!! -  Menu - Setup - USB-HOST PORT,
+ Wave recording: PCM, 48 kHz, bits per sample 24</p>
+<p><b>Export from SVANPC++</b></p>
+    <p>Choose file, export, export data, ASCII export with comments and no word wrap <b>(.txt)</b></p>
+ <img src="svan959-01.png" alt="bruel and kjaer" width="400">
+
+<h2>01dB - Fusion</h2>
+     <img src="fusion-01.png" alt="01db - fusion or duo" width="100">
+     <p> <b>General settings on SLM:</b></p>
+  <p> Make sure the option is selected that the <b>(.csv)</b> files are saved on the SD-card. </p>
+<p> After the measurement: drop the .csv-datafile file in the datafiles section </p>
+<p> Drag and drop the .mp3 file in the audio-upload section </p>
+</body>
+</html>
