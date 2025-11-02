@@ -38,7 +38,9 @@ def b_en_k_2250dataprep_bb(decodeddata, fileproperties):
     # create time object
     df[str_c_time] = pd.to_datetime(df[str_c_time], format='%d/%m/%Y %H:%M:%S')
     # use basename of soundpaths if not.na
-    df[str_c_soundpath] = df[str_c_soundpath].apply(lambda x: os.path.basename(x) if isinstance(x, str) else None)
+    #df[str_c_soundpath] = df[str_c_soundpath].apply(lambda x: os.path.basename(x) if isinstance(x, str) else None)
+    df[str_c_soundpath] = df[str_c_soundpath].apply(
+        lambda x: os.path.basename(x.replace('\\', '/')) if isinstance(x, str) else None)
     return df
 def b_en_k_2250dataprep_spec (decodeddata,fileproperties):
     enc = fileproperties['encoding']
