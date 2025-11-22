@@ -1,4 +1,4 @@
-# **make a standard file with sound level meter data.**
+# **make a standard file-sound level meter data.**
 
 Processes export from sound level meters SVAN959, 01dB-fusion,  Bruel and Kjaer 2250 en 2270
 
