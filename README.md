@@ -1,6 +1,6 @@
 # **make a standard file-sound level meter data.**
 
-Processes export from sound level meters SVAN959, 01dB-fusion,  Bruel and Kjaer 2250 en 2270
+Processes export from sound level meters SVAN959, 01dB-fusion,  Bruel and Kjaer 2250 & 2270 and Norsonic140 
 
 To a standard file with sound level meter data that can be used to perform calculations in 
 a deployed app

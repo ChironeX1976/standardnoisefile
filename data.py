@@ -3,26 +3,34 @@ import chardet
 import csv
 import io
 import pandas as pd
+from io import BytesIO
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
 from slm_01db import zero1db_dataprep
 from slm_svantek import svantek_dataprep
+from slm_norsonicxlsx import norsonic140xlsx_dataprep
 from std_columns import standard_column_names
 
 def parse_contents(contents, filename):
     """ Decodeert de inhoud en leest de data in als string en maakt er decoded_bytes van.
         Retourneert niks als het geen textbestand is """
     content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
+
     try:
         # Als het een tekstbestand of CSV is
         if filename.endswith('.txt') or filename.endswith('.csv'):
             # text = io.StringIO(decoded.decode('utf-8')).read()
             # print("tekstbestand gedetecteerd")
+            decoded = base64.b64decode(content_string)
             return decoded
         # Als het een afbeelding is
         elif filename.endswith(('.png', '.jpg', '.jpeg', '.gif')):
             # print("foto gedetecteerd")
             return
+        elif  filename.endswith('.xlsx'):
+            #do something specific with BytesIO
+            decoded = base64.b64decode(content_string)
+
+            return decoded
         elif filename.endswith(('.mp3')):
             print(f"audiobestand {filename}" )
             return
@@ -32,7 +40,8 @@ def parse_contents(contents, filename):
     except Exception as e:
         print(f"Fout bij verwerken van bestand {filename}: {str(e)}")
         return
-    return
+
+
 def data_init (contents, filenames, lstaudiofiles):
     ''' Data initialisation
     Check if the inputfile is valid
@@ -78,29 +87,37 @@ def get_fileproperties(decoded, filename):
     keys = ['filename', 'encoding', 'invalid', 'slmtype', 'delim', 'skiprows']
     # read the encoding
     enc = get_encoding(decoded[:1024])
-    # make a small sample of the data
-    sample = make_datasample(decoded,enc)
-    # get type of sound level meter (slm)
-    invalid, slmtype = get_slmtype(sample)
-    # detect the delimiters in the sample
-    delim = get_delimiter(sample)
-    # get rows to skip in the dataset
-    skiprows=get_rowstoskip(slmtype)
+    if filename.endswith('.xlsx'):
+        delim = "dummyexceldelimiter"
+        # get type of sound level meter (slm)
+        invalid, slmtype = get_slmtypexlsx(decoded)
+        skiprows = get_rowstoskip(slmtype)
+    else:
+        # make a small sample of the data
+        sample = make_datasample(decoded, enc)
+        # detect the delimiters in the sample
+        delim = get_delimiter(sample)
+        # get type of sound level meter (slm)
+        invalid, slmtype = get_slmtype(sample)
+        # get rows to skip in the dataset
+        skiprows = get_rowstoskip(slmtype)
     values =[filename, enc, invalid, slmtype, delim, skiprows]
     properties=dict(zip(keys,values))
     return properties
-def data_prep(decoded:str, fileproperties, lst_audiofiles):
+def data_prep(decoded:str, fileproperties, lstaudiofiles):
     slmtype = fileproperties['slmtype']
     if slmtype == "benk_bb":
         df = b_en_k_2250dataprep_bb(decoded, fileproperties)
     elif slmtype == "benk_spectra":
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
-        df = zero1db_dataprep(decoded, fileproperties, lst_audiofiles)
-    elif slmtype == "standardized":
+        df = zero1db_dataprep(decoded, fileproperties, lstaudiofiles)
+    elif slmtype  == "standardized":
         print('detectie op gestandardizeerde file bestaat niet')
     elif slmtype == "svantek":
-        df = svantek_dataprep(decoded, fileproperties, lst_audiofiles)
+        df = svantek_dataprep(decoded, fileproperties, lstaudiofiles)
+    elif slmtype == "norsonic140":
+        df = norsonic140xlsx_dataprep(decoded, fileproperties,lstaudiofiles)
     else:
         print(slmtype, ", not programmed yet")
     return df
@@ -147,11 +164,35 @@ def get_slmtype(sample_text):
     else:
         slmtype = "unknown slm file"
     return invalid, slmtype
+
+def get_slmtypexlsx(decoded):
+    """
+        Evaluates a .xlsx - dataset
+        Returns:
+            invalid:default = True
+            slmtype =  string with name of source
+        """
+    invalid = True
+    excel_file = pd.ExcelFile(BytesIO(decoded))
+    try:
+        # Retrieve the list of sheet names
+        sheet_names_list = excel_file.sheet_names
+        if "Summary" in sheet_names_list:
+            slmtype = "norsonic140"
+            invalid = False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    return invalid, slmtype
+
+
 def get_rowstoskip(slmtype):
     if slmtype == 'fusion':
         skiprows = 1
     elif slmtype == 'svantek':
         skiprows = 3
+    elif slmtype =='norsonic140':
+        skiprows = 2
     else:
         skiprows = 0
     return skiprows
