@@ -12,7 +12,7 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
     skiprows = 0
     column_indexes_to_keep = []
 
-    # rows to keep based on the first row
+    # cols to keep based on the first row
     df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows=skiprows)
     lst_interesting = ['Time', 'LAeq']
     for interest in lst_interesting:
@@ -22,7 +22,7 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
         else:
             print("No matching columns found.\n")
 
-    # rows to keep based on the second row
+    # cols to keep based on the second row
     skiprows = fileproperties['skiprows']-1
     df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows=skiprows)
     lst_interesting = ['A']
@@ -33,7 +33,7 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
         else:
             print("No matching columns found.\n")
 
-    # rows to keep based on the third row
+    # cols to keep based on the third row
     skiprows = fileproperties['skiprows']
     df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows =skiprows )
     lst_interesting = ['hz']
