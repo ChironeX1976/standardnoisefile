@@ -19,8 +19,9 @@ def meteo_01dB_vaisala_dataprep(decoded,fileproperties):
     df = df.iloc[:-1].reset_index(drop=True)
     df['wind_invalid'] = df['wind_m/s'] > 4.9
     df['rain_invalid'] = df['rain_mm/h'] > 0
-    # Create 'exclude_meteo' as 1 if either invalid column is True, else 0
-    df['exclude_meteo'] = (df['wind_invalid'] | df['rain_invalid']).astype(int)
+
+    # Als ongeldig (True), dan 1, anders np.nan
+    df['exclude_meteo'] = np.where(df['wind_invalid'] | df['rain_invalid'], 1, np.nan)
 
     # kompas-waarden volgens vlarem 2 bijlage 4.5.1 artikel 4§2
     wind_dict = get_wind_compass_definitions(df['winddir_degrees'])
