@@ -36,7 +36,7 @@ def c_knoppen():
                   html.Br(),
                   html.H1('Datafiles'),
                   dcc.Upload(id='cl_upload01',
-                             children=html.Div(['one or multiple .txt, .csv - file(s)', html.A('...')]),
+                             children=html.Div(['one or multiple .txt, .csv  or .xlsx - file(s)', html.A('...')]),
                              multiple=True,
                              className="custom-upload",
                              ),

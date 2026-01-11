@@ -4,11 +4,14 @@ import csv
 import io
 import pandas as pd
 from io import BytesIO
+from std_columns import standard_column_names
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
 from slm_01db import zero1db_dataprep
 from slm_svantek import svantek_dataprep
 from slm_norsonicxlsx import norsonic140xlsx_dataprep
-from std_columns import standard_column_names
+from std_pcm_file import standard_pcm_file
+from meteo_01db_vaisala import meteo_01dB_vaisala_dataprep
+
 
 def parse_contents(contents, filename):
     """ Decodeert de inhoud en leest de data in als string en maakt er decoded_bytes van.
@@ -104,6 +107,7 @@ def get_fileproperties(decoded, filename):
     values =[filename, enc, invalid, slmtype, delim, skiprows]
     properties=dict(zip(keys,values))
     return properties
+
 def data_prep(decoded:str, fileproperties, lstaudiofiles):
     slmtype = fileproperties['slmtype']
     if slmtype == "benk_bb":
@@ -112,15 +116,18 @@ def data_prep(decoded:str, fileproperties, lstaudiofiles):
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
         df = zero1db_dataprep(decoded, fileproperties, lstaudiofiles)
-    elif slmtype  == "standardized":
-        print('detectie op gestandardizeerde file bestaat niet')
     elif slmtype == "svantek":
         df = svantek_dataprep(decoded, fileproperties, lstaudiofiles)
     elif slmtype == "norsonic140":
         df = norsonic140xlsx_dataprep(decoded, fileproperties,lstaudiofiles)
+    elif slmtype =="01dBmeteo":
+        df = meteo_01dB_vaisala_dataprep(decoded,fileproperties)
+    elif slmtype =="standard_pcm_file":
+        df = standard_pcm_file (decoded, fileproperties)
     else:
         print(slmtype, ", not programmed yet")
     return df
+
 def get_encoding(bytessample):
     result = chardet.detect(bytessample)
     enc = result['encoding'] or 'utf-8'
@@ -142,9 +149,6 @@ def get_slmtype(sample_text):
     Evaluates the first line of the sample text of a dataset.
     Returns:
         invalid:default = True
-        skiprows (int): 1 if 'fusion' is in the first line,
-                        0 if 'Project Name' is in the first line,
-                        defaults to 0 otherwise.
         slmtype =  string with name of source
     """
     invalid = True
@@ -161,6 +165,9 @@ def get_slmtype(sample_text):
     elif '// ascii view for the file' in first_line:
         invalid = False
         slmtype ='svantek'
+    elif 'isodatetime' in first_line:
+            slmtype = 'standard_pcm_file'
+            invalid = False
     else:
         slmtype = "unknown slm file"
     return invalid, slmtype
@@ -180,6 +187,29 @@ def get_slmtypexlsx(decoded):
         if "Summary" in sheet_names_list:
             slmtype = "norsonic140"
             invalid = False
+        else:
+            #1. Get the name of the first sheet
+            first_sheet = excel_file.sheet_names[0]
+            df_headers = pd.read_excel(excel_file, sheet_name=0, nrows=0)
+            lst_headers = (df_headers.columns.tolist())
+
+            # Check if 'cmg' is in ANY element AND 'File' is in ANY element
+            has_cmg = any('cmg' in item for item in lst_headers)
+            has_file = any('File' in item for item in lst_headers)
+
+            if has_cmg and has_file:
+                print("This is a file from 01dB - dbTrait - further investigation...")
+                df_headers = pd.read_excel(excel_file, sheet_name=0, skiprows=5, nrows=0)
+                lst_headers = (df_headers.columns.tolist())
+                # Check if 'cmg' is in ANY element AND 'File' is in ANY element
+                has_Windspeed = any('Wind speed' in item for item in lst_headers)
+                has_Winddir = any('Wind direction' in item for item in lst_headers)
+                has_Rain = any('Rain intensity' in item for item in lst_headers)
+                if has_Windspeed and has_Winddir and has_Rain:
+                    print("... meteo file from a Vaisala WXT520")
+                    slmtype = "01dBmeteo"
+                    invalid = False
+
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -193,6 +223,8 @@ def get_rowstoskip(slmtype):
         skiprows = 3
     elif slmtype =='norsonic140':
         skiprows = 2
+    elif slmtype == '01dBmeteo':
+        skiprows = 5
     else:
         skiprows = 0
     return skiprows

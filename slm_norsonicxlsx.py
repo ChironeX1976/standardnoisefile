@@ -12,8 +12,8 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
     skiprows = 0
     column_indexes_to_keep = []
 
-    # cols to keep based on the first row
-    df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows=skiprows)
+    # cols to keep based on the first row, read only 3 rows
+    df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows=skiprows, nrows=4)
     lst_interesting = ['Time', 'LAeq']
     for interest in lst_interesting:
         indices_1 = find_column_index(df, interest, False)
@@ -22,9 +22,9 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
         else:
             print("No matching columns found.\n")
 
-    # cols to keep based on the second row
+    # cols to keep based on the second row, read only 3 rows
     skiprows = fileproperties['skiprows']-1
-    df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows=skiprows)
+    df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows=skiprows, nrows=4)
     lst_interesting = ['A']
     for interest in lst_interesting:
         indices_1 = find_column_index(df, interest, True)
@@ -33,7 +33,7 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
         else:
             print("No matching columns found.\n")
 
-    # cols to keep based on the third row
+    # cols to keep based on the third row, read full dataset
     skiprows = fileproperties['skiprows']
     df = pd.read_excel(BytesIO(decodeddata), sheet_name='Summary', skiprows =skiprows )
     lst_interesting = ['hz']
@@ -44,7 +44,7 @@ def norsonic140xlsx_dataprep(decodeddata, fileproperties, lst_audiofiles):
         else:
             print("No matching columns found.\n")
 
-
+    # columns to keep, based on the indexes
     if column_indexes_to_keep:
         columns_to_keep_names = [df.columns[i] for i in column_indexes_to_keep]
         df = df[columns_to_keep_names]
