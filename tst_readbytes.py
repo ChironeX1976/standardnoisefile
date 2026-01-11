@@ -10,6 +10,8 @@ from slm_01db import zero1db_dataprep
 from slm_BenK import b_en_k_2250dataprep_bb, b_en_k_2250dataprep_spec
 from slm_svantek import svantek_dataprep
 from slm_norsonicxlsx import norsonic140xlsx_dataprep
+from meteo_01db_vaisala import meteo_01dB_vaisala_dataprep
+from std_pcm_file import standard_pcm_file
 from std_columns import standard_column_names
 
 """THIS FILE IS ONLY FOR TESTING PURPOSES"""
@@ -59,6 +61,29 @@ def get_slmtypexlsx(decoded):
         if "Summary" in sheet_names_list:
             slmtype = "norsonic140"
             invalid = False
+        else:
+            #1. Get the name of the first sheet
+            first_sheet = excel_file.sheet_names[0]
+            df_headers = pd.read_excel(excel_file, sheet_name=0, nrows=0)
+            lst_headers = (df_headers.columns.tolist())
+
+            # Check if 'cmg' is in ANY element AND 'File' is in ANY element
+            has_cmg = any('cmg' in item for item in lst_headers)
+            has_file = any('File' in item for item in lst_headers)
+
+            if has_cmg and has_file:
+                print("This is a file from 01dB - dbTrait - further investigation...")
+                df_headers = pd.read_excel(excel_file, sheet_name=0, skiprows=5, nrows=0)
+                lst_headers = (df_headers.columns.tolist())
+                # Check if 'cmg' is in ANY element AND 'File' is in ANY element
+                has_Windspeed = any('Wind speed' in item for item in lst_headers)
+                has_Winddir = any('Wind direction' in item for item in lst_headers)
+                has_Rain = any('Rain intensity' in item for item in lst_headers)
+                if has_Windspeed and has_Winddir and has_Rain:
+                    print("... meteo file from a Vaisala WXT520")
+                    slmtype = "01dBmeteo"
+                    invalid = False
+
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -84,6 +109,9 @@ def get_slmtype(sample_text):
     elif '// ascii view for the file' in first_line:
         invalid = False
         slmtype ='svantek'
+    elif 'isodatetime' in first_line:
+            slmtype = 'standard_pcm_file'
+            invalid = False
     else:
         slmtype = "unknown slm file"
     return invalid, slmtype
@@ -94,6 +122,8 @@ def get_rowstoskip(slmtype):
         skiprows = 3
     elif slmtype =='norsonic140':
         skiprows = 2
+    elif slmtype == '01dBmeteo':
+        skiprows = 5
     else:
         skiprows = 0
     return skiprows
@@ -127,7 +157,7 @@ def parse_contents(contents, filename):
     except Exception as e:
         print(f"Fout bij verwerken van bestand {filename}: {str(e)}")
         return
-    return
+
 def data_init (contents, filenames, lstaudiofiles):
     ''' Data initialisation
     Check if the inputfile is valid
@@ -198,31 +228,33 @@ def data_prep(decoded:str, fileproperties, lstaudiofiles):
         df = b_en_k_2250dataprep_spec(decoded, fileproperties)
     elif slmtype == "fusion":
         df = zero1db_dataprep(decoded, fileproperties, lstaudiofiles)
-    elif slmtype  == "standardized":
-        print('detectie op gestandardizeerde file bestaat niet')
     elif slmtype == "svantek":
         df = svantek_dataprep(decoded, fileproperties, lstaudiofiles)
     elif slmtype == "norsonic140":
         df = norsonic140xlsx_dataprep(decoded, fileproperties,lstaudiofiles)
+    elif slmtype =="01dBmeteo":
+        df = meteo_01dB_vaisala_dataprep(decoded,fileproperties)
+    elif slmtype =="standard_pcm_file":
+        df = standard_pcm_file (decoded, fileproperties)
     else:
         print(slmtype, ", not programmed yet")
     return df
 
 # f1 = 'testdata/GL75-050_LoggedSpectra.txt'
 #f2 = 'testdata/GL75-050_LoggedBB.txt'
-f3 = 'testdata/01db/01.csv'
+#f3 = 'testdata/01db/01.csv'
 #f4 = 'testdata/dummy_file_nodata.txt'
 #f5 = 'testdata/GL 22  007_LoggedBB.txt'
 #f6= 'testdata/audio/01db/080945_080954.mp3'
 #f7 = 'testdata/Svan/svan02/L14_noblockoffsetwithcomments.csv'
 #f7 = 'testdata/Svan/svan01/L16.csv'
-f8 = 'testdata/Nor140/NOR140_FILE_110412_0003_PROFILE.xlsx'
-lst =['NOR140_FILE_110412_0003_R0000000.WAV',
-                                  'NOR140_FILE_110412_0003_R0000001.WAV',
-                                  'NOR140_FILE_110412_0003_R0000005.WAV']
+#f8 = 'testdata/Nor140/NOR140_FILE_110412_0003_PROFILE.xlsx'
+#f9 = 'testdata/01db/02_meteo.xlsx'
+f10 = 'testdata/01db/02_std01db_meteo.txt'
+lst =[]
 
-audiofolder="testdata/Nor140/Recordings_NOR140_FILE_110412_0003"
-contents, filename  = simulate_dash_upload(f8)
+#audiofolder="testdata/Nor140/Recordings_NOR140_FILE_110412_0003"
+contents, filename  = simulate_dash_upload(f10)
 if not isinstance(contents, list):
     contents = [contents]
     filename = [filename]
