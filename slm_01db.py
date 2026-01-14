@@ -13,7 +13,7 @@ def zero1db_dataprep(decodeddata:str, fileproperties, lst_audiofiles):
     #the first row contains rubbish, but the date is there...
     df = pd.read_csv(io.StringIO(decodeddata.decode(enc)), nrows= 0, delimiter=delim, engine="python", decimal='.')
     datum = df.columns.tolist()[-1]
-    datum = parser.parse(datum, dayfirst=True)
+    datum = parser.parse(datum, dayfirst=False)
     # read complete dataframe
     df = pd.read_csv(io.StringIO(decodeddata.decode(enc)), delimiter=delim, skiprows=skiprows, skipfooter = 96, engine="python", decimal=',')
     # get standard columnames
